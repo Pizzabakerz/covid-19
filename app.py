@@ -43,4 +43,4 @@ def final_fun():
     return jsonify(final)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
