@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <title>Covid - 19</title>
+    <!-- chart loader -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- / chart loader -->
+
+    <!-- Geo Chart -->
+    <script type="text/javascript">
+        google.charts.load('current', {
+            'packages': ['geochart'],
+            // Note: you will need to get a mapsApiKey for your project.
+            // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+            'mapsApiKey': 'AIzaSyBCW9CBBDGGtd0KArH_iA329ps7w6387GA'
+        });
+        google.charts.setOnLoadCallback(drawRegionsMap);
+
+        var jsonData = [['Country', 'total death']];
+        $.getJSON("/total_cases", function (result) {
+
+            for (let index = 0; index < result.data.length - 1; index++) {
+                jsonData.push([result.data[index][0].toUpperCase(), parseInt(result.data[index][1].split(',').reduce((a, b) => a + b))]);
+            }
+        });
+        function drawRegionsMap() {
+            var data = google.visualization.arrayToDataTable(jsonData);
+
+            var options = {};
+
+            var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+            chart.draw(data, options);
+        }
+
+    </script>
+    <!-- / Geo Chart -->
+
+    <!-- pie chart -->
+    <script type="text/javascript">
+        google.charts.load("current", { packages: ["corechart"] });
+        google.charts.setOnLoadCallback(drawChart);
+        var totaldeathdata = [['Death', 'Recover'], ['Total Death', 0], ['Total Recover', 0]];
+        $.getJSON("/total_death_recover", function (result) {
+
+            for (let index = 0; index < result.data.length - 1; index++) {
+                totaldeathdata[1][1] = totaldeathdata[1][1] + parseInt(result.data[index][0].split(',').reduce((a, b) => a + b));
+                totaldeathdata[2][1] = totaldeathdata[2][1] + parseInt(result.data[index][1].split(',').reduce((a, b) => a + b));
+            }
+        });
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable(totaldeathdata);
+
+            var options = {
+                //is3D: true,
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+            chart.draw(data, options);
+        }
+    </script>
+    <!-- / pie chart -->
+
+    <!-- Donut chart -->
+    <script type="text/javascript">
+        google.charts.load("current", { packages: ["corechart"] });
+        google.charts.setOnLoadCallback(drawChart);
+        var totalsurvive = [['New Death', 'New Case'], ['New Death', 0], ['New Recover', 0]];
+        $.getJSON("/new_death_new_case", function (result) {
+
+            for (let index = 0; index < result.data.length - 1; index++) {
+                if (result.data[index][1] != 0) {
+                    totalsurvive[2][1] = totalsurvive[2][1] + parseInt(result.data[index][1].slice(1).split(',').reduce((a, b) => a + b));
+                }
+                totalsurvive[1][1] = totalsurvive[1][1] + result.data[index][0];
+            }
+        });
+        //console.log(totalsurvive)
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable(totalsurvive);
+
+            var options = {
+                pieHole: 0.4,
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+            chart.draw(data, options);
+        }
+    </script>
+    <!-- / Donut chart -->
+
+    <!-- Bar chart -->
+    <script>
+        google.charts.load('current', { packages: ['corechart', 'bar'] });
+        google.charts.setOnLoadCallback(drawStacked);
+
+        var recovery_newcase_data = [['Country', 'Total Cases', 'Total Recovery']];
+        $.getJSON("/recovery_newcase", function (result) {
+
+            for (let index = 0; index < result.data.length - 1; index++) {
+                recovery_newcase_data.push([result.data[index][0].toUpperCase(), parseInt(result.data[index][1].split(',').reduce((a, b) => a + b)), parseInt(result.data[index][2].split(',').reduce((a, b) => a + b))])
+            }
+        });
+        //console.log(recovery_newcase_data)
+        function drawStacked() {
+            var data = google.visualization.arrayToDataTable(recovery_newcase_data);
+
+            var options = {
+                title: 'Population of Largest U.S. Cities',
+                chartArea: { width: '50%' },
+                isStacked: true,
+                hAxis: {
+                    title: 'Total Population',
+                    minValue: 0,
+                },
+                vAxis: {
+                    title: 'City'
+                }
+            };
+            var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
+    <!-- / Bar chart -->
+    <!-- Table population -->
+    <script>
+        $.getJSON("/final", function (result) {
+
+            for (let index = 0; index < result.data.length - 1; index++) {
+                console.log(result.data[index])
+                $('#data_table').append("<tr><td>"+result.data[index][0]+"</td><td>"+result.data[index][1]+"</td><td>"+result.data[index][2]+"</td><td>"+result.data[index][3]+"</td><td>"+result.data[index][4]+"</td><td>"+result.data[index][5]+"</td><td>"+result.data[index][6]+"</td><td>"+result.data[index][7]+"</td></tr>")
+            }
+        });
+    </script>
+    <!-- / Table population -->
+</head>
+
+<body>
+    <!-- As a heading -->
+    <nav class="navbar navbar-dark bg-dark">
+        <span class="navbar-brand mb-0 h1"> <a href="https://www.google.com/search?q=jackson+jegatheesan&rlz=1C5CHFA_enIN866IN866&oq=jackson+jegatheesan&aqs=chrome..69i57j69i61l3j69i65.9871j0j1&sourceid=chrome&ie=UTF-8">Covid -19</a></span>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title"> World Total Death</h5>
+        </div>
+        <div class="card-body">
+            <div class="container fluid">
+                <div id="regions_div" style="width: auto; height: auto;"></div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <hr><br>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title"> Total Death and Total Recover</h5>
+        </div>
+        <div class="card-body">
+            <div class="container fluid">
+                <div id="piechart_3d" style="width: 900px; height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title"> New Death New Case</h5>
+        </div>
+        <div class="card-body">
+            <div class="container fluid">
+                <div id="donutchart" style="width: 900px; height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title"> Top countries with Recovery and Total Case</h5>
+        </div>
+        <div class="card-body">
+            <div class="container fluid">
+                <div id="chart_div" style="width: 1300px; height: 1500px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title"> Countries and Outbreak</h5>
+        </div>
+    </div> <br><br>
+    <div class="container">
+        <table class="table table-hover table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">Country</th>
+                    <th scope="col">TotalCases</th>
+                    <th scope="col">NewCases</th>
+                    <th scope="col">TotalDeaths</th>
+                    <th scope="col">NewDeaths</th>
+                    <th scope="col">TotalRecovered</th>
+                    <th scope="col">ActiveCases</th>
+                    <th scope="col">Serious Critical</th>
+                </tr>
+            </thead>
+            <tbody id="data_table">
+                        <!-- Data will be populated here -->                
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
