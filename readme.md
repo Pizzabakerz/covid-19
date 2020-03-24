@@ -4,10 +4,10 @@ and execute the following command
 
 `python3 -m pip install -r requirements.txt`
 
-else create pipenv enviroinment and try to execute
+excecute following command
 
-`pipenv install`
+`flask run`
 
-and
+or
 
-`pipenv sync`
+`python app.py`
